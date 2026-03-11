@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 
 export default function UserLogin() {
+  const navigate=useNavigate()
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -25,8 +28,10 @@ export default function UserLogin() {
         }
       );
 
-      console.log("✅ Success:", response.data);
-      alert("User login successful!");
+      // console.log("✅ Success:", response.data);
+      const message=response.data
+      navigate('/user/home',{ state:  message  })
+      // alert("User login successful!");
     } catch (error) {
       console.error("❌ Error:", error.response?.data || error.message);
       alert("Login failed: " + (error.response?.data?.error || error.message));

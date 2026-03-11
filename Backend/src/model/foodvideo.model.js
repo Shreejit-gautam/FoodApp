@@ -19,6 +19,11 @@ const foodvideoSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    likescount: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
     foodPartner:{
 type: mongoose.Schema.Types.ObjectId,
 ref: "foodpartner"}

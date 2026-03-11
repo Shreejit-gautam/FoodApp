@@ -6,7 +6,7 @@ const route=express.Router()
 const upload = multer({ storage: multer.memoryStorage() });
 
 route.post('/addinfo',middleware.checkPartnerAuthCookie,upload.single('video'), foodController.createvideo)
-// router.get('/view',middleware.checkUserAuthCookie,authController.loginUser)
+route.get('/view', foodController.getvideos)
 // route.post('/addinfo',
 //   middleware.checkPartnerAuthCookie,
 //   upload.any(),

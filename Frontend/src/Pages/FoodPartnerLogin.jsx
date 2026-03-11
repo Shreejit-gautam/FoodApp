@@ -1,7 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 export default function FoodPartnerLogin() {
+  const navigate=useNavigate()
   const handleSubmit = async (e) => {
     console.log("helllo")
     e.preventDefault();
@@ -18,7 +21,9 @@ export default function FoodPartnerLogin() {
       const response = await axios.post(
         "http://localhost:3000/api/auth/foodpartner/login", // adjust to your backend route
         result,
+        
         {
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
           },
@@ -26,7 +31,8 @@ export default function FoodPartnerLogin() {
       );
 
       console.log("✅ Success:", response.data);
-      alert("Food Partner login successful!");
+      navigate('/foodpartner/VideoUpload')
+      // alert("Food Partner login successful!");
     } catch (error) {
       console.error("❌ Error:", error.response?.data || error.message);
       alert("Login failed: " + (error.response?.data?.error || error.message));

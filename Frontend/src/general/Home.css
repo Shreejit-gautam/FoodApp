@@ -1,0 +1,188 @@
+.reel-feed {
+  height: 100svh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  background:
+    radial-gradient(circle at top, rgba(255, 148, 77, 0.18), transparent 28%),
+    #020202;
+  scrollbar-width: none;
+}
+
+.reel-feed::-webkit-scrollbar {
+  display: none;
+}
+
+.reel-slide {
+  position: relative;
+  height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  isolation: isolate;
+}
+
+.reel-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reel-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.1) 28%, rgba(0, 0, 0, 0.56) 100%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0%, transparent 46%);
+  pointer-events: none;
+}
+
+.reel-topbar {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  right: 18px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.reel-pill,
+.reel-greeting {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(12, 12, 12, 0.3);
+  backdrop-filter: blur(16px);
+  color: #fff7f0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.reel-content {
+  position: absolute;
+  right: 88px;
+  bottom: 28px;
+  left: 18px;
+  z-index: 2;
+  display: grid;
+  gap: 12px;
+  color: #ffffff;
+}
+
+.reel-store {
+  margin: 0;
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.reel-description {
+  margin: 0;
+  max-width: 28rem;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.visit-store-btn {
+  width: fit-content;
+  min-height: 48px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff8f3f 0%, #ff6136 100%);
+  color: #16110e;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 14px 32px rgba(255, 98, 54, 0.3);
+}
+
+.visit-store-btn:hover {
+  border-color: transparent;
+}
+
+.reel-like-btn {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 56px;
+  padding: 14px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 28px;
+  background: rgba(15, 15, 15, 0.28);
+  backdrop-filter: blur(16px);
+  color: #ffffff;
+  transform: translateY(-50%);
+}
+
+.reel-like-btn:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.reel-like-btn.liked {
+  color: #ff7353;
+}
+
+.reel-heart-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.reel-like-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .reel-topbar {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+  }
+
+  .reel-pill,
+  .reel-greeting {
+    min-height: 34px;
+    padding: 0 12px;
+    font-size: 0.74rem;
+  }
+
+  .reel-content {
+    right: 84px;
+    bottom: 22px;
+    left: 14px;
+  }
+
+  .reel-store {
+    font-size: 1.2rem;
+  }
+
+  .reel-description {
+    max-width: 20rem;
+    font-size: 0.92rem;
+  }
+
+  .visit-store-btn {
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 0.9rem;
+  }
+}

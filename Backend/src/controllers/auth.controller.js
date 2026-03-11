@@ -109,7 +109,13 @@ async function loginfoodpartner(req, res) {
     const token = jwt.sign(
   { id: existingfoodpartner._id },   // payload
   process.env.SECRETKEY)
-    res.cookie('token',token)
+    res.cookie("token", token, {
+  httpOnly: true,
+  sameSite: "lax",
+  secure: false,
+  path: "/",
+});
+
     // If valid, you can return foodpartner info or generate a token (JWT)
     res.status(200).json({ message: "Login successful", foodpartner: existingfoodpartner });
   } catch (err) {

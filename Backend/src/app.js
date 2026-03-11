@@ -5,7 +5,7 @@ food_router=require('./routes/food.routes')
 const cookieParser = require("cookie-parser");
 
 const app=express();
-app.use(cors());
+// app.use(cors());
 
 // Or configure specific origins
 app.use(
