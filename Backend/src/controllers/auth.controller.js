@@ -41,7 +41,7 @@ async function loginUser(req, res) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
     const token = jwt.sign(
-  { id: existingfoodpartner._id },   // payload
+  { id: existingUser._id },   // payload
   process.env.SECRETKEY)
     res.cookie('token',token)
     // If valid, you can return user info or generate a token (JWT)
@@ -55,27 +55,42 @@ function logoutuser(req,res)
   res.clearcookie('token');
   res.status(200).json({message:"User logout Successfully"});
 }
-async function registerfoodpartner(req,res)
-{try {
-    const { foodpartnername, email, password } = req.body;
+async function registerFoodPartner(req, res) {
+  try {
+    const { restaurantName, foodpartnername, email, phoneno, password } = req.body;
 
-    // Check if foodpartner already exists
-    const existingfoodpartner = await foodpartnermodel.findOne({ $or: [{ foodpartnername }, { email }] });
-    if (existingfoodpartner) {
-      return res.status(400).json({ error: "foodpartner with this foodpartnername or email already exists" });
+    // Check if foodpartner already exists by name, email, or phone
+    const existingFoodPartner = await foodpartnermodel.findOne({
+      $or: [{ foodpartnername }, { email }, { phoneno }]
+    });
+
+    if (existingFoodPartner) {
+      return res.status(400).json({
+        error: "Food partner with this name, email, or phone number already exists"
+      });
     }
 
     // Hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new foodpartner
-    const newfoodpartner = await foodpartnermodel.create({ foodpartnername, email, password: hashedPassword });
+    const newFoodPartner = await foodpartnermodel.create({
+      restaurantName,
+      foodpartnername,
+      email,
+      phoneno,
+      password: hashedPassword
+    });
 
-    res.status(201).json({ message: "foodpartner created successfully", foodpartner: newfoodpartner });
+    res.status(201).json({
+      message: "Food partner created successfully",
+      foodpartner: newFoodPartner
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 }
+
 async function loginfoodpartner(req, res) {
   try {
     const { email, password } = req.body;
@@ -107,4 +122,4 @@ function logoutfoodpartner(req,res)
   res.status(200).json({message:"User logout Successfully"});
 }
 // console.log("working properly")
-module.exports={registeruser,loginUser,registerfoodpartner,loginfoodpartner,logoutfoodpartner,logoutuser}
+module.exports={registeruser,loginUser,registerFoodPartner,loginfoodpartner,logoutfoodpartner,logoutuser}
