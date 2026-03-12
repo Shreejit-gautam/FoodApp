@@ -6,6 +6,7 @@ import FoodPartnerLogin from "../Pages/FoodPartnerLogin";
 import FoodPartnerRegister from "../Pages/FoodPartnerRegister";
 import Home from "../general/Home";
 import VideoUpload from "../general/video_upload";
+import FoodPartnerProfile from "../general/FoodPartner_profile";
 import "../Pages/auth.css";
 
 export default function AppRouter() {
@@ -18,6 +19,7 @@ export default function AppRouter() {
         <Route path="/foodpartner/register" element={<FoodPartnerRegister />} />
         <Route path="/user/home" element={<Home />} />
         <Route path="/foodpartner/VideoUpload" element={<VideoUpload />} />
+        <Route path="/foodpartner/profile/:partnerId" element={<FoodPartnerProfile />} />
       </Routes>
     </Router>
   );

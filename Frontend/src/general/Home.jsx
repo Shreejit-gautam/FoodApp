@@ -1,20 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Home.css";
 
 const accent = "linear-gradient(180deg, #5f140d 0%, #1a0605 100%)";
-
-const initReelVideos = [
-  {
-    id: "spice-route",
-    src: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4",
-    storeName: "Spice Route Kitchen",
-    description:
-      "Smoky tandoori platters, fresh naan, and house chutneys served hot all evening.",
-    likes: 128,
-  },
-];
+const FOOD_API_BASE_URL = "http://localhost:3000/api/food";
+const LIKED_VIDEOS_STORAGE_KEY = "food-liked-videos";
 
 function HeartIcon({ filled }) {
   return (
@@ -35,31 +26,44 @@ function HeartIcon({ filled }) {
 
 function Home() {
   const location = useLocation();
+  const navigate = useNavigate();
   const username = location.state?.user?.username || "Guest";
 
-  const [reelVideos, setReelVideos] = useState(initReelVideos);
-  const [activeVideoId, setActiveVideoId] = useState(initReelVideos[0]?.id || null);
-  const [likedVideos, setLikedVideos] = useState([]);
+  const [reelVideos, setReelVideos] = useState([]);
+  const [activeVideoId, setActiveVideoId] = useState(null);
+  const [likedVideos, setLikedVideos] = useState(() => {
+    try {
+      const storedLikes = window.localStorage.getItem(LIKED_VIDEOS_STORAGE_KEY);
+      return storedLikes ? JSON.parse(storedLikes) : [];
+    } catch {
+      return [];
+    }
+  });
 
   const sectionRefs = useRef([]);
   const videoRefs = useRef([]);
   const visibilityMap = useRef({});
 
+  useEffect(() => {
+    window.localStorage.setItem(
+      LIKED_VIDEOS_STORAGE_KEY,
+      JSON.stringify(likedVideos)
+    );
+  }, [likedVideos]);
+
   // fetch videos once
   useEffect(() => {
     async function fetchVideos() {
       try {
-        const response = await axios.get("http://localhost:3000/api/food/view", {
+        const response = await axios.get(`${FOOD_API_BASE_URL}/view`, {
           withCredentials: true,
         });
 
         const incoming = Array.isArray(response.data) ? response.data : [];
-
-        setReelVideos((prev) => {
-          const existingIds = new Set(prev.map((item) => item.id));
-          const newItems = incoming.filter((item) => item && !existingIds.has(item.id));
-          return [...prev, ...newItems];
-        });
+        sectionRefs.current = [];
+        videoRefs.current = [];
+        visibilityMap.current = {};
+        setReelVideos(incoming.filter(Boolean));
       } catch (error) {
         console.error("Fetch error:", error.response?.data || error.message);
       }
@@ -130,18 +134,95 @@ function Home() {
   }, [activeVideoId, reelVideos]);
 
   function handleLike(videoId) {
+    const isLiked = likedVideos.includes(videoId);
+    const action = isLiked ? "unlike" : "like";
+
     setLikedVideos((currentLikes) =>
-      currentLikes.includes(videoId)
+      isLiked
         ? currentLikes.filter((id) => id !== videoId)
         : [...currentLikes, videoId]
     );
+
+    setReelVideos((currentVideos) =>
+      currentVideos.map((video) =>
+        video.id === videoId
+          ? {
+              ...video,
+              likes: Math.max((video.likes || 0) + (isLiked ? -1 : 1), 0),
+            }
+          : video
+      )
+    );
+
+    axios
+      .patch(
+        `${FOOD_API_BASE_URL}/video/${videoId}/likes`,
+        { action },
+        { withCredentials: true }
+      )
+      .then((response) => {
+        const persistedLikes = response.data?.likes;
+
+        if (typeof persistedLikes !== "number") {
+          return;
+        }
+
+        setReelVideos((currentVideos) =>
+          currentVideos.map((video) =>
+            video.id === videoId ? { ...video, likes: persistedLikes } : video
+          )
+        );
+      })
+      .catch((error) => {
+        console.error("Like update failed:", error.response?.data || error.message);
+
+        setLikedVideos((currentLikes) =>
+          isLiked
+            ? [...currentLikes, videoId]
+            : currentLikes.filter((id) => id !== videoId)
+        );
+
+        setReelVideos((currentVideos) =>
+          currentVideos.map((video) =>
+            video.id === videoId
+              ? {
+                  ...video,
+                  likes: Math.max((video.likes || 0) + (isLiked ? 1 : -1), 0),
+                }
+              : video
+          )
+        );
+      });
+  }
+
+  function handleVisitStore(partnerId) {
+    if (!partnerId) {
+      return;
+    }
+
+    navigate(`/foodpartner/profile/${partnerId}`);
   }
 
   return (
     <main className="reel-feed" aria-label="Food reel feed">
+      {!reelVideos.length ? (
+        <section className="reel-slide" style={{ background: accent }}>
+          <div className="reel-overlay" />
+          <div className="reel-topbar">
+            <span className="reel-pill">Food Reels</span>
+            <span className="reel-greeting">Hi, {username}</span>
+          </div>
+          <div className="reel-content">
+            <p className="reel-store">No videos yet</p>
+            <p className="reel-description">
+              Upload a reel from a food partner account to see it here.
+            </p>
+          </div>
+        </section>
+      ) : null}
+
       {reelVideos.map((video, index) => {
         const isLiked = likedVideos.includes(video.id);
-        const displayLikes = (video.likes || 0) + (isLiked ? 1 : 0);
 
         return (
           <section
@@ -177,7 +258,11 @@ function Home() {
             <div className="reel-content">
               <p className="reel-store">{video.storeName}</p>
               <p className="reel-description">{video.description}</p>
-              <button type="button" className="visit-store-btn">
+              <button
+                type="button"
+                className="visit-store-btn"
+                onClick={() => handleVisitStore(video.partnerId)}
+              >
                 Visit Store
               </button>
             </div>
@@ -190,7 +275,7 @@ function Home() {
               aria-label={isLiked ? "Unlike this store" : "Like this store"}
             >
               <HeartIcon filled={isLiked} />
-              <span className="reel-like-count">{displayLikes}</span>
+              <span className="reel-like-count">{video.likes || 0}</span>
             </button>
           </section>
         );
